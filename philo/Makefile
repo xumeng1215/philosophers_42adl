@@ -1,6 +1,6 @@
 NAME = philo
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -fsanitize=thread
 SRC = dinner.c getter_setter.c init_data.c parse_args.c main.c monitor.c utils.c utils_safety.c write_status.c routine.c
 OBJDIR = obj
 OBJ = $(SRC:%.c=$(OBJDIR)/%.o)
