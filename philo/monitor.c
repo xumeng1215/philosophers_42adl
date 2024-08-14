@@ -1,0 +1,68 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   monitor.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mengxu <mengxu@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/01 23:55:28 by mexu              #+#    #+#             */
+/*   Updated: 2024/08/13 13:23:02 by mengxu           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philo.h"
+
+/* 
+check if the simulation is finished or not
+ */
+bool	simulation_finished(t_table *table)
+{
+	return (get_bool(&table->table_mutex, &table->end_simulation));
+}
+
+/* 
+check philo is dead or not
+if the philo is full, just return
+if the epalsed time from last meal timestamp is larger than the time_to_die,
+return true, the philo is dead.
+otherwise return false.
+ */
+static bool	philo_died(t_philo *philo)
+{
+	long	time;
+
+	if (get_bool(&philo->philo_mutex, &philo->flag_full))
+		return (false);
+	time = get_time() - get_long(&philo->philo_mutex, &philo->last_meal_time);
+	if (time > (philo->table->time_to_die))
+		return (true);
+	return (false);
+}
+
+/* 
+for the thread of monitor
+wait for all the philo threads are running.
+loop untile the simulation is finished
+loop through the philos, check if the philo is dead or not
+if dead, write status, then set end_simulation to true
+ */
+void	*monitor_dinner(void *data)
+{
+	t_table	*table;
+	int		i;
+
+	table = (t_table *)data;
+	while (!simulation_finished(table))
+	{
+		i = -1;
+		while (++i < table->philo_nbr && !simulation_finished(table))
+		{
+			if (philo_died(table->philos + i))
+			{
+				write_status(DEAD, table->philos + i, DEBUG_MODE);
+				set_bool(&table->table_mutex, &table->end_simulation, true);
+			}
+		}
+	}
+	return (NULL);
+}
