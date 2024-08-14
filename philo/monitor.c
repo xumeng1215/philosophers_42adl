@@ -25,18 +25,22 @@ check philo is dead or not
 if the philo is full, just return
 if the epalsed time from last meal timestamp is larger than the time_to_die,
 return true, the philo is dead.
+protect the code using philo mutex from routine functions from philo thread.
 otherwise return false.
  */
 static bool	philo_died(t_philo *philo)
 {
-	long	time;
+	bool	result;
 
+	result = false;
 	if (get_bool(&philo->philo_mutex, &philo->flag_full))
-		return (false);
-	time = get_time() - get_long(&philo->philo_mutex, &philo->last_meal_time);
-	if (time > (philo->table->time_to_die))
-		return (true);
-	return (false);
+		return (result);
+	safe_mutex(&philo->philo_mutex, LOCK);
+	if ((get_time() - philo->last_meal_time)
+		> (philo->table->time_to_die))
+		result = true;
+	safe_mutex(&philo->philo_mutex, UNLOCK);
+	return (result);
 }
 
 /* 
