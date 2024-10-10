@@ -1,7 +1,7 @@
 NAME = philo
-CC = gcc
+CC = cc
 CFLAGS = -Wall -Wextra -Werror -fsanitize=thread
-SRC = dinner.c getter_setter.c init_data.c parse_args.c main.c monitor.c utils.c utils_safety.c write_status.c routine.c
+SRC = $(wildcard *.c)
 OBJDIR = obj
 OBJ = $(SRC:%.c=$(OBJDIR)/%.o)
 
